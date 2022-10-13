@@ -297,4 +297,4 @@ Wrapping Up
 
 The next document :ref:`intro/consistency` further explores the distributed
 nature of CouchDB. We should have given you enough bites to whet your interest.
-Let's go!
+Let's go!!

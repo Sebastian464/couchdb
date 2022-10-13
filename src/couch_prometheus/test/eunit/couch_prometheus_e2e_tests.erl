@@ -23,7 +23,7 @@
 
 e2e_test_() ->
     {
-        "Prometheus started with dedicated port",
+        "With dedicated port",
         {
             setup,
             fun() ->
@@ -48,7 +48,7 @@ e2e_test_() ->
 
 reject_test_() ->
     {
-        "Prometheus started without dedicated port",
+        "Without dedicated port",
         {
             setup,
             fun() ->
@@ -117,7 +117,13 @@ metrics_updated(ChttpdPort) ->
     Port = mochiweb_socket_server:get(chttpd, port),
     DbUrl = lists:concat(["http://", Addr, ":", Port, "/", ?b2l(TmpDb)]),
     create_db(DbUrl),
-    [create_doc(DbUrl, "testdoc" ++ integer_to_binary(I)) || I <- lists:seq(1, 100)],
+    lists:foreach(
+        fun(I) ->
+            create_doc(DbUrl, "testdoc" ++ integer_to_list(I))
+        end,
+        lists:seq(1, 100)
+    ),
+    %% [create_doc(DbUrl, "testdoc" ++ integer_to_list(I)) || I <- lists:seq(1, 100)],
     delete_db(DbUrl),
     UpdatedMetrics = wait_for_metrics(Url, "couchdb_httpd_requests_total", 10000),
     % since the puts happen so fast, we can't have an exact
@@ -160,7 +166,7 @@ wait_for_metrics(Url, Value, Timeout) ->
                 [?CONTENT_JSON, ?AUTH],
                 []
             ),
-            ?debugVal({Body, Value}),
+            ?debugVal({Body, Value}, 100),
             case string:find(Body, Value) of
                 nomatch -> wait;
                 M -> M

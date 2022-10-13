@@ -160,6 +160,7 @@ wait_for_metrics(Url, Value, Timeout) ->
                 [?CONTENT_JSON, ?AUTH],
                 []
             ),
+            ?debugVal({Body, Value}),
             case string:find(Body, Value) of
                 nomatch -> wait;
                 M -> M

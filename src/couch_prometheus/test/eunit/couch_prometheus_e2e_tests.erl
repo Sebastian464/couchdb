@@ -110,6 +110,8 @@ prometheus_port(_) ->
     ?assertEqual(200, RC2).
 
 metrics_updated(ChttpdPort) ->
+    Url = node_local_url(ChttpdPort),
+    InitMetrics = wait_for_metrics(Url, "couchdb_httpd_requests_total 0", 5000),
     TmpDb = ?tempdb(),
     Addr = config:get("chttpd", "bind_address", "127.0.0.1"),
     Port = mochiweb_socket_server:get(chttpd, port),
@@ -117,8 +119,6 @@ metrics_updated(ChttpdPort) ->
     create_db(DbUrl),
     [create_doc(DbUrl, "testdoc" ++ integer_to_binary(I)) || I <- lists:seq(1, 100)],
     delete_db(DbUrl),
-    Url = node_local_url(ChttpdPort),
-    InitMetrics = wait_for_metrics(Url, "couchdb_httpd_requests_total 0", 5000),
     UpdatedMetrics = wait_for_metrics(Url, "couchdb_httpd_requests_total", 10000),
     % since the puts happen so fast, we can't have an exact
     % total requests given the scraping interval. so we just want to acknowledge
